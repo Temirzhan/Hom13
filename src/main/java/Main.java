@@ -13,11 +13,12 @@ public class Main {
     public static void main(String[] args) throws InterruptedException {
 
         final CyclicBarrier cyclicBarrier = new CyclicBarrier(CARS_COUNT);
+        final CountDownLatch countDownLatch = new CountDownLatch(CARS_COUNT);
         System.out.println("ВАЖНОЕ ОБЪЯВЛЕНИЕ >>> Подготовка!!!");
         Race race = new Race(new Road(60), new Tunnel(), new Road(40));
         Car[] cars = new Car[CARS_COUNT];
         for (int i = 0; i < cars.length; i++) {
-            cars[i] = new Car(race, 20 + (int) (Math.random() * 10),cyclicBarrier);
+            cars[i] = new Car(race, 20 + (int) (Math.random() * 10),cyclicBarrier,countDownLatch);
         }
 
 
@@ -29,14 +30,13 @@ public class Main {
         }
 
         try {
-            cyclicBarrier.await();
-            cyclicBarrier.await();
+            countDownLatch.await();
             System.out.println("ВАЖНОЕ ОБЪЯВЛЕНИЕ >>> Гонка началась!!!");
         } catch (InterruptedException e) {
             e.printStackTrace();
-        } catch (BrokenBarrierException e) {
-            e.printStackTrace();
         }
+
+
 
         Thread.sleep(10000);
         System.out.println("ВАЖНОЕ ОБЪЯВЛЕНИЕ >>> Гонка закончилась!!!");

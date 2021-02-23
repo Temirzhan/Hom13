@@ -1,3 +1,4 @@
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 
 class Car implements Runnable {
@@ -5,7 +6,8 @@ class Car implements Runnable {
     private Race race;
     private int speed;
     private String name;
-    static public CyclicBarrier cyclicBarrier;
+    static private CyclicBarrier cyclicBarrier;
+    static private CountDownLatch countDownLatch;
     static String hero = "";
     public String getName() {
         return name;
@@ -13,8 +15,9 @@ class Car implements Runnable {
     public int getSpeed() {
         return speed;
     }
-    public Car(Race race, int speed,CyclicBarrier cb) {
+    public Car(Race race, int speed,CyclicBarrier cb, CountDownLatch cd) {
         cyclicBarrier = cb;
+        countDownLatch = cd;
         this.race = race;
         this.speed = speed;
         CARS_COUNT++;
@@ -25,8 +28,10 @@ class Car implements Runnable {
         try {
             System.out.println(this.name + " готовится");
             Thread.sleep(500 + (int)(Math.random() * 800));
+
             Car.cyclicBarrier.await();
             System.out.println(this.name + " готов");
+            countDownLatch.countDown();
             Car.cyclicBarrier.await();
             for (int i = 0; i < race.getStages().size(); i++) {
                 race.getStages().get(i).go(this);
@@ -34,6 +39,7 @@ class Car implements Runnable {
         } catch (Exception e) {
             e.printStackTrace();
         }finally {
+            countDownLatch.countDown();
             if(hero.isEmpty())
                 hero = this.name;
         }
